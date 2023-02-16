@@ -6,24 +6,25 @@ import "../src/Sandbox.sol";
 
 contract SandboxTest is Test {
     Sandbox public sandbox;
+    address eoa = address(0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045);
 
     function setUp() public {
         sandbox = new Sandbox();
     }
 
     function testSandbox() public {
-        address eoa = address(0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045);
+        bytes8 _gateKey;
 
-        address interim;
-        
+        // 30 bytes = 240 bits
+        // 8 - 2 = 6 bytes = 48 bits
+        // 0x11 will be in 32 bytes with leading zeroes
+        // we need that in the 4th byte: 32 - 4 = 28 bytes = 224 bits
+        // so left shift 0x11 to 224 bits will place 0x11 in the right place
         assembly {
-          interim := shl(144, eoa)
+            _gateKey := shr(48, shl(240, sload(eoa.slot)))
+            _gateKey := or(shl(224, 0x11), _gateKey)
         }
-        emit log_named_address("interim", interim);
-        
-        assembly {
-          interim := shr(16, shl(144, eoa))
-        }
-        emit log_named_address("interim", interim);
+        console.logBytes8(_gateKey);
+        assertTrue(_gateKey == bytes8(0x0000001100006045));
     }
 }
