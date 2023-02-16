@@ -10,4 +10,20 @@ contract SandboxTest is Test {
     function setUp() public {
         sandbox = new Sandbox();
     }
+
+    function testSandbox() public {
+        address eoa = address(0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045);
+
+        address interim;
+        
+        assembly {
+          interim := shl(144, eoa)
+        }
+        emit log_named_address("interim", interim);
+        
+        assembly {
+          interim := shr(16, shl(144, eoa))
+        }
+        emit log_named_address("interim", interim);
+    }
 }
